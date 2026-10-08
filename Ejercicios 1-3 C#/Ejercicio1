@@ -1,0 +1,23 @@
+
+Console.WriteLine("Escribe el primer valor:");
+
+double value1 = double.Parse(Console.ReadLine());
+
+Console.WriteLine("Escribe el segundo valor:");
+
+double value2 = double.Parse(Console.ReadLine());
+
+Console.WriteLine("Resultados:");
+Console.WriteLine("Suma: " + (value1 + value2));
+Console.WriteLine("Resta: " + (value1 - value2));
+Console.WriteLine("Multiplicación: " + (value1 * value2));
+if (value2 == 0)
+{
+    Console.WriteLine("División: No se puede dividir entre cero.");
+}
+else
+{
+    Console.WriteLine("División: " + (value1 / value2));
+}
+Console.WriteLine("Raiz cuadrada del primer valor: " + Math.Sqrt(value1));
+Console.WriteLine("Raiz cuadrada del segundo valor: " + Math.Sqrt(value2));

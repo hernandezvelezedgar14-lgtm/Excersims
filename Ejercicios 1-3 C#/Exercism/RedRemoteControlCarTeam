@@ -1,0 +1,63 @@
+using RedRemoteControlCarTeam;
+using BlueRemoteControlCarTeam;
+
+namespace RedRemoteControlCarTeam
+{
+    public class Motor
+    {
+        public Motor() { }
+    }
+
+    public class Telemetry
+    {
+        public Telemetry() { }
+    }
+
+    public class RemoteControlCar
+    {
+        public RemoteControlCar(Motor motor, Telemetry telemetry) { }
+    }
+}
+
+namespace BlueRemoteControlCarTeam
+{
+    public class Motor
+    {
+        public Motor() { }
+    }
+
+    public class Telemetry
+    {
+        public Telemetry() { }
+    }
+
+    public class RemoteControlCar
+    {
+        public RemoteControlCar(Motor motor, Telemetry telemetry) { }
+    }
+}
+
+namespace Combined
+{
+    using Red = RedRemoteControlCarTeam;
+    using Blue = BlueRemoteControlCarTeam;
+
+    public static class CarBuilder
+    {
+        public static Red.RemoteControlCar BuildRed()
+        {
+            return new Red.RemoteControlCar(
+                new Red.Motor(),
+                new Red.Telemetry()
+            );
+        }
+
+        public static Blue.RemoteControlCar BuildBlue()
+        {
+            return new Blue.RemoteControlCar(
+                new Blue.Motor(),
+                new Blue.Telemetry()
+            );
+        }
+    }
+}

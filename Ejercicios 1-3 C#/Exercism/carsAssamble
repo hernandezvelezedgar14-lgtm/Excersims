@@ -1,0 +1,45 @@
+using System;
+
+public static class AssemblyLine
+{
+    // Constante con la tasa base de producción por hora
+    private const int BaseCarsPerHour = 221;
+
+    // 1. Calcula el porcentaje de éxito según la velocidad
+    public static double SuccessRate(int speed)
+    {
+        if (speed == 0)
+        {
+            return 0.0;
+        }
+        else if (speed >= 1 && speed <= 4)
+        {
+            return 1.0;
+        }
+        else if (speed >= 5 && speed <= 8)
+        {
+            return 0.9;
+        }
+        else if (speed == 9)
+        {
+            return 0.8;
+        }
+        else // speed == 10
+        {
+            return 0.77;
+        }
+    }
+    
+    // 2. Calcula el total de autos producidos por hora considerando el porcentaje de éxito
+    public static double ProductionRatePerHour(int speed)
+    {
+        return speed * BaseCarsPerHour * SuccessRate(speed);
+    }
+
+    // 3. Calcula cuántos autos completos se producen por minuto (requiere cast explícito a int)
+    public static int WorkingItemsPerMinute(int speed)
+    {
+        // Se divide la producción por hora entre 60 y se trunca con (int)
+        return (int)(ProductionRatePerHour(speed) / 60);
+    }
+}

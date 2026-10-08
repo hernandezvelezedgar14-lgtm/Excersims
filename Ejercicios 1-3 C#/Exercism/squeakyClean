@@ -1,0 +1,61 @@
+using System;
+using System.Text;
+
+public static class Identifier
+{
+    public static string Clean(string identifier)
+    {
+        if (string.IsNullOrEmpty(identifier))
+            return identifier;
+
+        StringBuilder result = new StringBuilder();
+        bool capitalizeNext = false;
+
+        foreach (char c in identifier)
+        {
+           
+            if (char.IsControl(c))
+            {
+                result.Append("CTRL");
+                continue;
+            }
+
+            
+            if (c == '-')
+            {
+                capitalizeNext = true;
+                continue;
+            }
+
+               
+            if (c == ' ')
+            {
+                result.Append('_');
+                continue;
+            }
+
+           
+            if (!char.IsLetter(c) || IsGreek(c))
+                continue;
+
+          
+            if (capitalizeNext)
+            {
+                result.Append(char.ToUpper(c));
+                capitalizeNext = false;
+            }
+            else
+            {
+                result.Append(c);
+            }
+        }
+
+        return result.ToString();
+    }
+
+   
+    private static bool IsGreek(char c)
+    {
+        return c >= 'α' && c <= 'ω';   
+    }
+}
