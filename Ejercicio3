@@ -1,0 +1,194 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+class Estudiante
+{
+    public string Nombre;
+    public int Dia, Mes, Anio;
+
+    // Algoritmo del Ejercicio 3 (años, meses, días)
+    public (int a, int m, int d) CalcularEdad(int dA, int mA, int aA)
+    {
+        if (dA < Dia) { dA += 30; mA -= 1; }
+        if (mA < Mes) { mA += 12; aA -= 1; }
+        return (aA - Anio, mA - Mes, dA - Dia);
+    }
+
+    public (int a, int m, int d) EdadHoy()
+    {
+        var h = DateTime.Now;
+        return CalcularEdad(h.Day, h.Month, h.Year);
+    }
+
+    public override string ToString()
+    {
+        var (a, m, d) = EdadHoy();
+        return $"{Nombre,-20} Nac: {Dia:00}/{Mes:00}/{Anio}  Edad: {a}a {m}m {d}d";
+    }
+}
+
+class Curso
+{
+    private string archivo;
+    public List<Estudiante> Lista = new List<Estudiante>();
+
+    public Curso(string archivo)
+    {
+        this.archivo = archivo;
+        Cargar();
+    }
+
+    private void Cargar()
+    {
+        if (!File.Exists(archivo)) return;
+        foreach (var linea in File.ReadAllLines(archivo))
+        {
+            if (string.IsNullOrWhiteSpace(linea)) continue;
+            var p = linea.Split(',');
+            if (p.Length != 4) continue;
+            Lista.Add(new Estudiante
+            {
+                Nombre = p[0],
+                Dia = int.Parse(p[1]),
+                Mes = int.Parse(p[2]),
+                Anio = int.Parse(p[3])
+            });
+        }
+    }
+
+    public void Guardar()
+    {
+        File.WriteAllLines(archivo,
+            Lista.Select(e => $"{e.Nombre},{e.Dia},{e.Mes},{e.Anio}"));
+    }
+
+    public void Agregar(Estudiante e) { Lista.Add(e); Guardar(); }
+
+    public bool Eliminar(string nombre)
+    {
+        var e = Lista.FirstOrDefault(x =>
+            x.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
+        if (e == null) return false;
+        Lista.Remove(e);
+        Guardar();
+        return true;
+    }
+}
+
+class Program
+{
+    static Curso curso = new Curso("curso.txt");
+
+    static void Main()
+    {
+        while (true)
+        {
+            Console.WriteLine("\n===== MENU DEL CURSO =====");
+            Console.WriteLine("1. Agregar un estudiante");
+            Console.WriteLine("2. Eliminar un estudiante");
+            Console.WriteLine("3. Reportes");
+            Console.WriteLine("4. Salir");
+            Console.Write("Opcion: ");
+
+            switch (Console.ReadLine())
+            {
+                case "1": Agregar();  break;
+                case "2": Eliminar(); break;
+                case "3": Reportes(); break;
+                case "4": return;
+                default: Console.WriteLine("Opcion invalida."); break;
+            }
+        }
+    }
+
+    static void Agregar()
+    {
+        Console.Write("Nombre: ");
+        string nombre = Console.ReadLine().Trim();
+        if (nombre == "") { Console.WriteLine("Nombre vacio."); return; }
+
+        if (curso.Lista.Any(e => e.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase)))
+        { Console.WriteLine("Ya existe ese estudiante."); return; }
+
+        try
+        {
+            Console.Write("Dia nacimiento: "); int d = int.Parse(Console.ReadLine());
+            Console.Write("Mes nacimiento: "); int m = int.Parse(Console.ReadLine());
+            Console.Write("Anio nacimiento: "); int a = int.Parse(Console.ReadLine());
+            _ = new DateTime(a, m, d); // valida fecha
+
+            curso.Agregar(new Estudiante { Nombre = nombre, Dia = d, Mes = m, Anio = a });
+            Console.WriteLine("Estudiante agregado y guardado.");
+        }
+        catch
+        {
+            Console.WriteLine("Fecha invalida.");
+        }
+    }
+
+    static void Eliminar()
+    {
+        Console.Write("Nombre a eliminar: ");
+        string nombre = Console.ReadLine().Trim();
+        Console.WriteLine(curso.Eliminar(nombre)
+            ? "Eliminado correctamente."
+            : "No se encontro ese estudiante.");
+    }
+
+    static void Reportes()
+    {
+        while (true)
+        {
+            Console.WriteLine("\n--- REPORTES ---");
+            Console.WriteLine("1. Listar estudiantes");
+            Console.WriteLine("2. Promedio de edad del curso");
+            Console.WriteLine("3. Mas joven y mas viejo");
+            Console.WriteLine("4. Detalle del calculo de edad");
+            Console.WriteLine("5. Volver");
+            Console.Write("Opcion: ");
+
+            switch (Console.ReadLine())
+            {
+                case "1":
+                    if (curso.Lista.Count == 0) Console.WriteLine("Sin estudiantes.");
+                    else foreach (var e in curso.Lista) Console.WriteLine(e);
+                    break;
+
+                case "2":
+                    if (curso.Lista.Count == 0) { Console.WriteLine("Sin datos."); break; }
+                    double prom = curso.Lista
+                        .Select(e => { var (a, m, d) = e.EdadHoy(); return a + m / 12.0 + d / 365.0; })
+                        .Average();
+                    Console.WriteLine($"Promedio de edad: {prom:F2} anios");
+                    break;
+
+                case "3":
+                    if (curso.Lista.Count == 0) { Console.WriteLine("Sin datos."); break; }
+                    var joven = curso.Lista.OrderByDescending(e => new DateTime(e.Anio, e.Mes, e.Dia)).First();
+                    var viejo = curso.Lista.OrderBy(e => new DateTime(e.Anio, e.Mes, e.Dia)).First();
+                    Console.WriteLine($"Mas joven: {joven.Nombre}");
+                    Console.WriteLine($"Mas viejo: {viejo.Nombre}");
+                    break;
+
+                case "4":
+                    Console.Write("Nombre: ");
+                    string n = Console.ReadLine();
+                    var est = curso.Lista.FirstOrDefault(x =>
+                        x.Nombre.Equals(n, StringComparison.OrdinalIgnoreCase));
+                    if (est == null) { Console.WriteLine("No encontrado."); break; }
+
+                    var h = DateTime.Now;
+                    var (aa, mm, dd) = est.EdadHoy();
+                    Console.WriteLine($"Nacimiento : {est.Dia:00}/{est.Mes:00}/{est.Anio}");
+                    Console.WriteLine($"Actual     : {h.Day:00}/{h.Month:00}/{h.Year}");
+                    Console.WriteLine($"Edad: {aa} anios, {mm} meses, {dd} dias");
+                    break;
+
+                case "5": return;
+                default: Console.WriteLine("Opcion invalida."); break;
+            }
+        }
+    }
+}
