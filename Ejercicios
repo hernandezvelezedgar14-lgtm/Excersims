@@ -1,1 +1,66 @@
+using System;
+using System.Collections.Generic;
 
+class Estudiante
+{
+    public string Nombre, Apellido;
+    public double N1, N2, N3, N4;
+
+    public double Promedio => (N1 + N2 + N3 + N4) / 4.0;
+
+    public string Literal
+    {
+        get
+        {
+            double p = Promedio;
+            if (p > 90 && p <= 100) return "A";
+            if (p > 80 && p <= 90)  return "B";
+            if (p > 70 && p <= 80)  return "C";
+            return "D";
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        var lista = new List<Estudiante>();
+        string resp;
+
+        do
+        {
+            var e = new Estudiante();
+
+            Console.Write("Nombre:   ");   e.Nombre   = Console.ReadLine();
+            Console.Write("Apellido: ");   e.Apellido = Console.ReadLine();
+            Console.Write("Nota 1:   ");   e.N1 = double.Parse(Console.ReadLine());
+            Console.Write("Nota 2:   ");   e.N2 = double.Parse(Console.ReadLine());
+            Console.Write("Nota 3:   ");   e.N3 = double.Parse(Console.ReadLine());
+            Console.Write("Nota 4:   ");   e.N4 = double.Parse(Console.ReadLine());
+
+            lista.Add(e);
+
+            Console.Write("\n¿Desea ingresar otro estudiante? (s/n): ");
+            resp = Console.ReadLine();
+            Console.WriteLine();
+
+        } while (resp.ToLower() == "s");
+
+        // Encabezado
+        Console.WriteLine("\nColegio Dios es bueno. Calificaciones del cuatrimestre");
+        Console.WriteLine("===================================================");
+        Console.WriteLine($"{"Nombre",-15}{"Apellido",-12}{"N1",5}{"N2",5}{"N3",5}{"N4",5}{"Prom",7}{"Lit",5}");
+        Console.WriteLine("===================================================");
+
+        foreach (var e in lista)
+        {
+            Console.WriteLine($"{e.Nombre,-15}{e.Apellido,-12}" +
+                              $"{e.N1,5}{e.N2,5}{e.N3,5}{e.N4,5}" +
+                              $"{e.Promedio,7:F1}{e.Literal,5}");
+        }
+        Console.WriteLine("===================================================");
+
+        Console.ReadKey();
+    }
+}
