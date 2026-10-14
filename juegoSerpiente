@@ -1,0 +1,114 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
+class Program
+{
+    
+    const int Ancho = 40;
+    const int Alto = 20;
+
+    enum Direction { Arriba, Abajo, Izquierda, Derecha }
+
+    static void Main()
+    {
+        
+        Console.Clear();
+        Console.CursorVisible = false;
+
+        var cuerpo = new LinkedList<(int x, int y)>();
+        cuerpo.AddFirst((20, 10));
+        cuerpo.AddLast((19, 10));
+        cuerpo.AddLast((18, 10));
+
+        foreach (var parte in cuerpo)
+            Dibujar(parte.x, parte.y, "■", ConsoleColor.Green);
+
+        var direccion = Direction.Derecha;
+        var ultimaDireccion = direccion;
+
+        
+        while (true)
+        {
+            
+            while (Console.KeyAvailable)
+            {
+                var tecla = Console.ReadKey(true).Key;
+
+                if (tecla == ConsoleKey.UpArrow && ultimaDireccion != Direction.Abajo)
+                    direccion = Direction.Arriba;
+                else if (tecla == ConsoleKey.DownArrow && ultimaDireccion != Direction.Arriba)
+                    direccion = Direction.Abajo;
+                else if (tecla == ConsoleKey.LeftArrow && ultimaDireccion != Direction.Derecha)
+                    direccion = Direction.Izquierda;
+                else if (tecla == ConsoleKey.RightArrow && ultimaDireccion != Direction.Izquierda)
+                    direccion = Direction.Derecha;
+            }
+
+            var cabeza = cuerpo.First!.Value;
+
+            var nueva = direccion switch
+            {
+                Direction.Arriba    => (cabeza.x, cabeza.y - 1),
+                Direction.Abajo     => (cabeza.x, cabeza.y + 1),
+                Direction.Izquierda => (cabeza.x - 1, cabeza.y),
+                _                   => (cabeza.x + 1, cabeza.y),
+            };
+            ultimaDireccion = direccion;
+
+            
+            if (nueva.Item1 < 0 || nueva.Item1 >= Ancho ||
+                nueva.Item2 < 0 || nueva.Item2 >= Alto)
+                break;
+
+            
+            var cola = cuerpo.Last!.Value;
+            cuerpo.RemoveLast();
+            Dibujar(cola.x, cola.y, " ", ConsoleColor.Black);
+
+           
+            if (cuerpo.Contains(nueva))
+                break;
+
+            
+            cuerpo.AddFirst(nueva);
+            Dibujar(nueva.Item1, nueva.Item2, "■", ConsoleColor.Green);
+
+            
+            Thread.Sleep(100);
+        }
+
+        
+        Console.SetCursorPosition(0, Alto + 3);
+        Console.ResetColor();
+        Console.WriteLine("GAME OVER");
+        Console.CursorVisible = true;
+    }
+
+    static void Dibujar(int x, int y, string texto, ConsoleColor color)
+    {
+        Console.SetCursorPosition(x + 1, y + 1);
+        Console.ForegroundColor = color;
+        Console.Write(texto);
+    }
+    static void DibujarBorde()
+{
+    Console.ForegroundColor = ConsoleColor.Cyan;
+    string horizontal = new string('═', Ancho);
+
+    Console.SetCursorPosition(0, 0);
+    Console.Write("╔" + horizontal + "╗");
+
+    for (int y = 1; y <= Alto; y++)
+    {
+        Console.SetCursorPosition(0, y);
+        Console.Write("║");
+        Console.SetCursorPosition(Ancho + 1, y);
+        Console.Write("║");
+    }
+
+    Console.SetCursorPosition(0, Alto + 1);
+    Console.Write("╚" + horizontal + "╝");
+    Console.ResetColor();
+}
+}
